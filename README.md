@@ -2,45 +2,6 @@
 
 This repository contains the official implementation of **Evo-RAD**, a self-evolving agentic retrieval framework for rare retinal disease diagnosis. The system uses a GCN-based policy network trained with Group Relative Policy Optimization (GRPO) to dynamically refine retrieval sets, improving diagnostic accuracy through iterative insert/delete actions guided by multi-dimensional rewards.
 
-## Architecture
-
-```
-Query Image ──► RetiZero Backbone ──► Visual + Text Features
-                                            │
-                                            ▼
-                                   ┌─────────────────┐
-                                   │  KNN Retrieval   │
-                                   │  (Candidate Pool)│
-                                   └────────┬────────┘
-                                            │
-                                            ▼
-                              ┌──────────────────────────┐
-                              │  GCN Policy Network      │
-                              │  (Query as Node-0)       │
-                              │  Actions: Stop/Delete/   │
-                              │           Insert         │
-                              └────────────┬─────────────┘
-                                           │
-                                     GRPO Training
-                                     (Multi-trajectory)
-                                           │
-                                           ▼
-                              ┌──────────────────────────┐
-                              │  Reward Engine            │
-                              │  • Accuracy Reward        │
-                              │  • Purity Reward          │
-                              │  • KG Density Reward      │
-                              │  • Step Rewards           │
-                              └──────────────────────────┘
-```
-
-**Key Components:**
-- **RetiZero** (frozen): Vision-language backbone (CLIPRModel + LoRA + BioClinicalBERT) for feature extraction
-- **GCN PolicyNetwork**: Graph Convolutional Network that takes the query image as node-0 and K candidate images as nodes 1..K, producing delete/insert/stop actions
-- **GRPO Trainer**: Group Relative Policy Optimization with KL-constrained updates and multi-trajectory exploration
-- **Reward Engine**: Multi-dimensional reward combining accuracy, purity, KG density, and step-level feedback
-- **BioClinicalBERT**: Computes disease semantic similarity for knowledge graph construction
-
 ## Project Structure
 
 ```
