@@ -1,9 +1,5 @@
 """
 Policy Network with Query as Node-0 in GCN Graph
-
-GCN receives [B, K+1, D] input where node 0 = query image.
-Delete actions only target candidate nodes 1..K.
-Action space: 0=Stop, 1..K=Delete candidate i-1, K+1=Insert.
 """
 import torch
 import torch.nn as nn
@@ -126,3 +122,4 @@ class PolicyNetwork(nn.Module):
         full_mask = torch.cat([can_stop, can_delete, can_insert], dim=1)  # [B, K+2]
 
         return all_logits.masked_fill(~full_mask, -1e9)
+
