@@ -1,11 +1,6 @@
 """
-Dynamic Retrieval Environment for GRPO
+Dynamic Retrieval Environment for Evo-RAD
 
-Key design:
-- reset(): sorts the entire candidate pool by cosine similarity to the query (descending).
-  Active set starts as top-K candidates (most visually similar to the query).
-- step() INSERT: always inserts the pool candidate with the HIGHEST query similarity
-  that is not currently in the active set — no randomness in insert.
 """
 import torch
 import torch.nn.functional as F
@@ -135,3 +130,4 @@ class RetrievalEnv:
                     # active_mask[b, worst] stays True
 
         return state
+
