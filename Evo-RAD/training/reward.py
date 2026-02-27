@@ -1,9 +1,6 @@
 """
-Minimalist 5-Dim Reward (Zero Penalty)
-1. Acc: +40.0 (Base) + +80.0 (Resurrection).
-2. Purity: +20.0 (Base) + +50.0 (Gain).
-3. KG Density: +30.0 (Semantic Center Protection).
-4. No Penalties (Action Costs Removed).
+Reward Design
+
 """
 import torch
 from collections import Counter
@@ -154,3 +151,4 @@ class RewardEngine:
             step_rewards[good_insert_mask] += 3.0
             
         return step_rewards
+
