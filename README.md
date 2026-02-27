@@ -7,13 +7,11 @@ This repository contains the official implementation of **Evo-RAD**, a self-evol
 ```
 GCN_GRPO_Retrieval/
 ├── main.py                     # Main training & evaluation script
-├── gnn_train.py                # Relational GNN training (knowledge graph)
 ├── run.sh                      # Universal run script (train/multi_seed/multi_k/ablation)
 ├── requirements.txt            # Python dependencies
 ├── models/
 │   ├── policy.py               # GCN-based PolicyNetwork
 │   ├── dynamic_env.py          # Retrieval environment (reset/step)
-│   ├── gat.py                  # Graph Attention Network
 │   └── simple_gcn.py           # Simple GCN layer
 ├── training/
 │   ├── grpo_trainer.py         # GRPO trainer with multi-trajectory exploration
