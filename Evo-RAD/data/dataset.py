@@ -1,5 +1,5 @@
 """
-Unified Data Layer for GRPO-GNN
+Unified Data Layer for Evo-RAD
 Handles consistent label mapping across splits and semantic graph construction.
 """
 import os
@@ -267,3 +267,4 @@ def create_unified_dataloaders(
     }
     
     return train_loader, val_loader, test_loader, info
+
