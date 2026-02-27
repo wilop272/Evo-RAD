@@ -1,5 +1,5 @@
 """
-Clinical Feature Tags for Fundus Eye Diseases
+Clinical Feature Tags for ALL Diseases
 Based on ophthalmology literature and clinical characteristics.
 
 This module deliberately keeps a curated dictionary only—no automatic completion.
@@ -337,3 +337,4 @@ def get_all_unique_tags() -> Set[str]:
     for tags in DISEASE_CLINICAL_TAGS.values():
         unique.update(tags)
     return unique
+
