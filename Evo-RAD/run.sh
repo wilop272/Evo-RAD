@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# GCN-GRPO Evolutionary Retrieval - Universal Run Script
+# Evo-RAD - Universal Run Script
 # =============================================================================
 # Usage:
 #   bash run.sh [--data_root PATH] [--mode MODE]
