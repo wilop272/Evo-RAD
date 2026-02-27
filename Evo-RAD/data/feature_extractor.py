@@ -17,10 +17,6 @@ from torchvision import transforms
 
 
 class RetiZeroFeatureExtractor:
-    """
-    Extract frozen RetiZero features for images
-    Uses CLIPRModel with LoRA adapters and BioClinicalBERT for text.
-    """
     
     def __init__(self, checkpoint_path: str, device: str = 'cuda', retizero_root: str = None, model_variant: str = 'openai/clip-vit-large-patch14'):
         self.device = device
@@ -293,5 +289,6 @@ def extract_all_features(
     torch.cuda.empty_cache()
     
     return train_features, val_features, test_features, info
+
 
 
