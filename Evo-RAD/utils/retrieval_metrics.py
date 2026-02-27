@@ -1,5 +1,5 @@
 """
-Unified Retrieval Evaluation Module for GCN Project
+Unified Retrieval Evaluation Module for Evo-RAD Project
 Supports Hard Vote, Soft Vote, and 3 Standard Metrics (ACC, F1, Sensitivity)
 """
 import torch
@@ -255,3 +255,4 @@ def print_metrics(metrics: Dict[str, float], prefix: str = ""):
     print(f"{prefix}ACC: {metrics['ACC']:.2f}%")
     print(f"{prefix}F1: {metrics['F1']:.2f}%")
     print(f"{prefix}Sensitivity: {metrics['Sensitivity']:.2f}%")
+
