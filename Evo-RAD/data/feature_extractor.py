@@ -1,6 +1,6 @@
 """
-Feature Extractor for GRPO-GNN System
-Uses RetiZero (CLIPRModel + LoRA + BioClinicalBERT) as the vision-language backbone.
+Feature Extractor for Evo-RAD System
+Uses Frozen Pre-trained RetiZero as the vision-language backbone.
 """
 from .disease_tags import DISEASE_CLINICAL_TAGS, get_disease_tags
 
@@ -293,4 +293,5 @@ def extract_all_features(
     torch.cuda.empty_cache()
     
     return train_features, val_features, test_features, info
+
 
