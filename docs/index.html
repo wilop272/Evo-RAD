@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Evo-RAD — Navigating Rare Retinal Disease Diagnosis via Self-Evolving Agentic Retrieval</title>
+<meta name="description" content="Evo-RAD: A self-evolving agentic retrieval framework for rare retinal disease diagnosis." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-0: #05060a;
+    --bg-1: #0b0e17;
+    --bg-2: #12172380;
+    --border: #1f2740;
+    --text: #e6ebf5;
+    --text-dim: #8892a6;
+    --accent: #7c5cff;
+    --accent-2: #22d3ee;
+    --accent-3: #ff5ce4;
+    --glow: 0 0 40px rgba(124, 92, 255, 0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-0);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Animated background */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    animation: float 20s ease-in-out infinite;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: var(--accent-2); top: 40%; right: -100px; animation-delay: -7s; }
+  .orb-3 { width: 450px; height: 450px; background: var(--accent-3); bottom: -150px; left: 30%; animation-delay: -14s; opacity: 0.25; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -40px) scale(1.1); }
+    66% { transform: translate(-30px, 30px) scale(0.95); }
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124, 92, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 92, 255, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: -1;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(5, 6, 10, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+  .logo {
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(124, 92, 255, 0.1);
+    border: 1px solid rgba(124, 92, 255, 0.3);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 28px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  h1 {
+    font-size: clamp(40px, 6.5vw, 76px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    max-width: 1100px;
+  }
+  h1 .gradient {
+    background: linear-gradient(135deg, #fff 0%, var(--accent-2) 40%, var(--accent) 70%, var(--accent-3) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    font-size: clamp(16px, 1.8vw, 20px);
+    color: var(--text-dim);
+    max-width: 720px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+
+  .authors {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 8px;
+    max-width: 900px;
+  }
+  .authors .eq { color: var(--accent-2); }
+  .affiliation {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+    max-width: 800px;
+  }
+
+  .cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 60px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, #5a3fd6 100%);
+    color: white;
+    box-shadow: 0 4px 24px rgba(124, 92, 255, 0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(124, 92, 255, 0.6);
+  }
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    border-color: var(--border);
+    backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .btn svg { width: 16px; height: 16px; }
+
+  /* Stats strip */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    backdrop-filter: blur(10px);
+  }
+  .stat {
+    background: rgba(11, 14, 23, 0.7);
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Sections */
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 24px;
+  }
+
+  .section-header {
+    margin-bottom: 48px;
+    text-align: center;
+  }
+  .section-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-2);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  /* Video */
+  .video-wrap {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-1);
+    box-shadow: var(--glow);
+  }
+  .video-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0.5;
+    filter: blur(20px);
+  }
+  video {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+
+  /* Abstract card */
+  .card {
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.04) 0%, rgba(34, 211, 238, 0.02) 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+  }
+  .card p {
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .card p + p { margin-top: 16px; }
+  .card strong { color: var(--accent-2); font-weight: 600; }
+
+  /* Method / features grid */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .feature {
+    background: rgba(11, 14, 23, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .feature:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(124, 92, 255, 0.15);
+  }
+  .feature-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(124, 92, 255, 0.2), rgba(34, 211, 238, 0.1));
+    border: 1px solid rgba(124, 92, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent-2);
+    font-size: 13px;
+  }
+  .feature h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .feature p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* BibTeX */
+  .code-block {
+    background: #0a0d15;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    overflow-x: auto;
+    position: relative;
+    line-height: 1.7;
+  }
+  .code-block .key { color: var(--accent-2); }
+  .code-block .val { color: #ffb86c; }
+  .copy-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(124, 92, 255, 0.1);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 60px 24px 40px;
+    color: var(--text-dim);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+  footer a { color: var(--accent-2); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 20px 60px; }
+    .card { padding: 24px; }
+    section { padding: 60px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<nav>
+  <div class="logo">Evo-RAD</div>
+  <div class="nav-links">
+    <a href="#demo">Demo</a>
+    <a href="#abstract">Abstract</a>
+    <a href="#method">Method</a>
+    <a href="#cite">Cite</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">MICCAI 2026 · Rare Retinal Disease Diagnosis</div>
+  <h1>
+    <span class="gradient">Evo-RAD:</span><br />
+    Self-Evolving Agentic Retrieval<br />for Rare Retinal Disease Diagnosis
+  </h1>
+  <p class="subtitle">
+    A Markov Decision Process framework where a graph-based agent iteratively refines its retrieval evidence — DELETE, INSERT, or TERMINATE — trained with GRPO under a homogeneity-aware reward.
+  </p>
+  <div class="authors">
+    Wangding Xia<span class="eq">*</span>,
+    Ye Du<span class="eq">*</span>,
+    Jiashi Lin,
+    Meng Wang,
+    Danli Shi,
+    Shujun Wang
+  </div>
+  <div class="affiliation">
+    The Hong Kong Polytechnic University · Northwestern Polytechnical University · National University of Singapore
+    <br /><span style="opacity:0.7;">*Equal contribution</span>
+  </div>
+
+  <div class="cta-group">
+    <a class="btn btn-primary" href="Paper-1081.pdf" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Paper
+    </a>
+    <a class="btn btn-secondary" href="https://github.com/wilop272/Evo-RAD" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.08 1.85 1.24 1.85 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      Code
+    </a>
+    <a class="btn btn-secondary" href="#demo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Watch Demo
+    </a>
+    <a class="btn btn-secondary" href="#cite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1zm12 0c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/></svg>
+      Cite
+    </a>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value">+21.04%</div>
+      <div class="stat-label">vs. Foundation Models</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">+3.56%</div>
+      <div class="stat-label">vs. PEFT & RAD</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">MDP</div>
+      <div class="stat-label">Retrieval Formulation</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">GRPO</div>
+      <div class="stat-label">Policy Optimization</div>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="section-header">
+    <div class="section-tag">// demo</div>
+    <h2>See Evo-RAD in Action</h2>
+  </div>
+  <div class="video-wrap">
+    <video controls preload="metadata" playsinline poster="">
+      <source src="demo.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</section>
+
+<section id="abstract">
+  <div class="section-header">
+    <div class="section-tag">// abstract</div>
+    <h2>Overview</h2>
+  </div>
+  <div class="card">
+    <p>
+      Large-scale pretrained foundation models have revolutionized general medical screening, but often falter on rare diseases because such conditions are underrepresented in real-world clinical datasets. While retrieval-augmented diagnosis attempts to mitigate this, conventional static methods frequently succumb to the <strong>hubness problem</strong>, retrieving visually similar but semantically incorrect common diseases.
+    </p>
+    <p>
+      To address this, we propose <strong>Evo-RAD</strong>, a self-evolving agentic framework that transforms evidence acquisition into a dynamic decision-making task. We formulate retrieval as a <strong>Markov Decision Process (MDP)</strong> where a graph-based agent observes the reference set state and executes actions to purge discordant evidence (DELETE), acquire pathologically consistent samples (INSERT), or conclude the evolution (TERMINATE).
+    </p>
+    <p>
+      Optimized via <strong>Group Relative Policy Optimization (GRPO)</strong> with a homogeneity-aware reward, the agent learns to maximize the diagnostic homogeneity of the support reference set. Experiments on retinal disease benchmarks show that Evo-RAD substantially improves rare-disease diagnosis, outperforming retinal foundation models by <strong>+21.04%</strong>, while also surpassing retrieval-based and parameter-efficient fine-tuning methods by <strong>+3.56%</strong>.
+    </p>
+  </div>
+</section>
+
+<section id="method">
+  <div class="section-header">
+    <div class="section-tag">// method</div>
+    <h2>Core Ideas</h2>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">MDP</div>
+      <h3>Retrieval as Decision Process</h3>
+      <p>Reformulate one-shot nearest-neighbor retrieval as a sequential MDP, letting an agent iteratively reason over evidence rather than trusting a single similarity score.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">AGT</div>
+      <h3>Graph-Based Agent</h3>
+      <p>A graph observer captures relations across the reference set and executes DELETE / INSERT / TERMINATE actions to evolve support evidence.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">RWD</div>
+      <h3>Homogeneity-Aware Reward</h3>
+      <p>Rewards diagnostic coherence of the evolving reference set, so the policy is pushed toward semantically consistent — not just visually similar — evidence.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">RL</div>
+      <h3>GRPO Optimization</h3>
+      <p>Group Relative Policy Optimization trains the agent stably without a critic, matching the sparse-reward, group-comparison nature of diagnosis.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">RAR</div>
+      <h3>Hubness-Resistant</h3>
+      <p>Iterative purging of hub samples breaks the common-disease bias that traps static RAD pipelines on rare-disease queries.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">SOTA</div>
+      <h3>State-of-the-Art Gains</h3>
+      <p>+21.04% over retinal foundation models and +3.56% over strong RAD / PEFT baselines on rare retinal disease diagnosis.</p>
+    </div>
+  </div>
+</section>
+
+<section id="cite">
+  <div class="section-header">
+    <div class="section-tag">// citation</div>
+    <h2>BibTeX</h2>
+  </div>
+  <div class="code-block">
+    <button class="copy-btn" onclick="copyBibtex(this)">COPY</button>
+<pre id="bibtex">@inproceedings{xia2026evorad,
+  <span class="key">title</span>     = <span class="val">{Evo-RAD: Navigating Rare Retinal Disease Diagnosis via Self-Evolving Agentic Retrieval}</span>,
+  <span class="key">author</span>    = <span class="val">{Xia, Wangding and Du, Ye and Lin, Jiashi and Wang, Meng and Shi, Danli and Wang, Shujun}</span>,
+  <span class="key">booktitle</span> = <span class="val">{Medical Image Computing and Computer Assisted Intervention -- MICCAI 2026}</span>,
+  <span class="key">year</span>      = <span class="val">{2026}</span>
+}</pre>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Corresponding author: <a href="mailto:shu-jun.wang@polyu.edu.hk">shu-jun.wang@polyu.edu.hk</a>
+  </p>
+  <p style="margin-top: 10px;">
+    &copy; 2026 Evo-RAD · <a href="https://github.com/wilop272/Evo-RAD" target="_blank" rel="noopener">GitHub</a>
+  </p>
+</footer>
+
+<script>
+  function copyBibtex(btn) {
+    const text = document.getElementById('bibtex').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'COPIED ✓';
+      btn.style.color = '#22d3ee';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.color = '';
+      }, 1600);
+    });
+  }
+</script>
+
+</body>
+</html>
